@@ -6,3 +6,7 @@
   box-sizing: border-box;
   font-family: poppins;
 }
+::-webkit-scrollbar {
+  /* to hide the scroll bar */
+  display: none;
+}
