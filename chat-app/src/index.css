@@ -10,3 +10,6 @@
   /* to hide the scroll bar */
   display: none;
 }
+img.dot {
+  width: 15px !important;
+}
