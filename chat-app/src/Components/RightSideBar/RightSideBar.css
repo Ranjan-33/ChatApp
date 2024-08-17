@@ -69,3 +69,7 @@
   border-radius: 20px;
   cursor: pointer;
 }
+
+.logout:hover {
+  background-color: #c62828; /* Darker red background color on hover */
+}

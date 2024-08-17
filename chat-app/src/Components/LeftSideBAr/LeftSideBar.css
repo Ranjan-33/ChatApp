@@ -115,3 +115,7 @@
 .menu:hover .sub-menu {
   display: block;
 }
+
+.sub-menu p:hover {
+  color: #077efe;
+}
