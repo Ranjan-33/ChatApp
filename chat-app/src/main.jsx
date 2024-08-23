@@ -4,9 +4,12 @@ import App from "./App.jsx";
 import "./index.css";
 import ReactDom from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
+import AppContextProvider from "./Context/AppContext.jsx";
 
 ReactDom.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
-    <App />
+    <AppContextProvider>
+      <App />
+    </AppContextProvider>
   </BrowserRouter>
 );

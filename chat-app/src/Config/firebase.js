@@ -32,7 +32,7 @@ const signup = async (username, email, password) => {
       email,
       name: "",
       avatar: "",
-      bio: "he im using ChatApp",
+      bio: "hey , there  i'ma using ChatApp",
       lastseen: Date.now(),
     });
 
