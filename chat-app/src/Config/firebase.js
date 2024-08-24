@@ -37,7 +37,7 @@ const signup = async (username, email, password) => {
     });
 
     await setDoc(doc(db, "chats", user.uid), {
-      chatData: [],
+      chatsData: [],
     });
     toast.success("Sign up successfully");
   } catch (error) {
