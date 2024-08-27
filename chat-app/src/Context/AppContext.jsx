@@ -10,7 +10,7 @@ const AppContextProvider = (props) => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [chatData, setChatData] = useState(null);
-  const [messagesId, setMessagesId] = useState(null);
+  const [messageId, setMessagesId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [chatUser, setChatUser] = useState(null);
 
@@ -55,6 +55,7 @@ const AppContextProvider = (props) => {
           const userData = userSnap.data();
           tempData.push({ ...item, userData });
         }
+
         setChatData(tempData.sort((a, b) => b.updatedAt - a.updatedAt));
       });
       return () => {
@@ -71,7 +72,7 @@ const AppContextProvider = (props) => {
     loadUserData,
     messages,
     setMessages,
-    messagesId,
+    messageId,
     setMessagesId,
     chatUser,
     setChatUser,

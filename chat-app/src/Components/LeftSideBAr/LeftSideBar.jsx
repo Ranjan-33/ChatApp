@@ -24,7 +24,7 @@ const LeftSideBar = () => {
     chatUser,
     setChatUser,
     setMessagesId,
-    messagesId,
+    messageId,
   } = useContext(AppContext);
   const [user, setUser] = useState(null);
   const [showSearch, setShowSearch] = useState(false);
@@ -78,7 +78,7 @@ const LeftSideBar = () => {
 
       await updateDoc(doc(chatsRef, user.id), {
         chatsData: arrayUnion({
-          messagesId: newMessageRef.id,
+          messageId: newMessageRef.id,
           lastMessage: "",
           rId: userData.id,
           updatedAt: Date.now(),
@@ -96,15 +96,24 @@ const LeftSideBar = () => {
       });
     } catch (error) {
       toast.error(error.messages);
-      console.error(error);
+      // console.error(error);
     }
   };
 
   // showing user chats
 
-  const setChat = async (item) => {
-    setMessagesId(item.messagesId);
+  /* const setChat = async (item) => {
+    setMessagesId(item.messageId);
     setChatUser(item);
+    console.log(item);
+  }; */
+  const setChat = (item) => {
+    console.log("Setting messagesId:", item.messageId); // Check if messagesId is available
+    if (!item.messageId) {
+      console.error("Error: messagesId is undefined!");
+    }
+    setMessagesId(item.messageId); // Make sure this line correctly updates state
+    setChatUser(item); // Set the chat user
   };
 
   return (
