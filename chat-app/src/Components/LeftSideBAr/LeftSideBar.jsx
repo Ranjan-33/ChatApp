@@ -30,7 +30,6 @@ const LeftSideBar = () => {
   const [showSearch, setShowSearch] = useState(false);
 
   // inputhandler
-
   const inputHandler = async (e) => {
     try {
       const input = e.target.value;
@@ -39,17 +38,22 @@ const LeftSideBar = () => {
         const userRef = collection(db, "users");
         const q = query(userRef, where("username", "==", input.toLowerCase()));
         const querySnap = await getDocs(q);
+
         if (!querySnap.empty && querySnap.docs[0].data().id !== userData.id) {
           let userExit = false;
 
-          chatData.map((user) => {
+          // Corrected: Using a more appropriate loop to check if the user exists in the chat
+          for (let user of chatData) {
             if (user.rId === querySnap.docs[0].data().id) {
               userExit = true;
+              break; // Exit the loop as soon as a match is found
             }
-          });
+          }
 
           if (!userExit) {
             setUser(querySnap.docs[0].data());
+          } else {
+            setUser(null); // Ensure the user doesn't appear if already in the chat list
           }
         } else {
           setUser(null);
@@ -58,8 +62,7 @@ const LeftSideBar = () => {
         setShowSearch(false);
       }
     } catch (error) {
-      toast.error(error.messages);
-
+      toast.error(error.message);
       console.error("Error searching user:", error);
     }
   };
@@ -86,7 +89,7 @@ const LeftSideBar = () => {
         }),
       });
       await updateDoc(doc(chatsRef, userData.id), {
-        chatData: arrayUnion({
+        chatsData: arrayUnion({
           messageId: newMessageRef.id,
           lastMessage: "",
           rId: user.id,
@@ -96,7 +99,7 @@ const LeftSideBar = () => {
       });
     } catch (error) {
       toast.error(error.messages);
-      // console.error(error);
+      console.error(error);
     }
   };
 
