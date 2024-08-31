@@ -15,8 +15,15 @@ import { toast } from "react-toastify";
 import upload from "../../Lib/upload";
 
 const ChatBox = () => {
-  const { userData, messageId, chatUser, messages, setMessages } =
-    useContext(AppContext);
+  const {
+    userData,
+    messageId,
+    chatUser,
+    messages,
+    setMessages,
+    chatVisible,
+    setChatVisible,
+  } = useContext(AppContext);
   const [input, setInput] = useState("");
 
   // Function to send a message
@@ -199,7 +206,7 @@ const ChatBox = () => {
   // message field
 
   return chatUser ? (
-    <div className="chat-box">
+    <div className={`chat-box${chatVisible ? "" : "hidden"}`}>
       <div className="chat-user">
         <img src={chatUser.userData.avatar} alt="" />
         <p>
@@ -209,6 +216,12 @@ const ChatBox = () => {
           ) : null}
         </p>
         <img src={assets.help_icon} className="help" alt="" />
+        <img
+          onClick={() => setChatVisible(false)}
+          src={assets.arrow_icon}
+          className="arrow"
+          alt=""
+        />
       </div>
 
       <div className="chat-msg">
@@ -259,7 +272,7 @@ const ChatBox = () => {
       </div>
     </div>
   ) : (
-    <div className="chat-welcome">
+    <div className={`chat-welcome ${chatVisible ? "" : "hidden"}`}>
       <img src={assets.logo_icon} alt="" />
       <p>Chat Anytime Anywhere </p>
     </div>

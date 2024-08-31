@@ -132,7 +132,7 @@ const LeftSideBar = () => {
       await updateDoc(userChatsRef, {
         chatsData: userChatData.chatsData,
       });
-      // setChatVisible(true);
+      setChatVisible(true);
     } catch (error) {
       toast.error(error.message);
     }

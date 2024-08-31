@@ -18,11 +18,19 @@
   color: white;
 }
 
-/* @media (max-width: 900px) {
+@media (max-width: 900px) {
   .chat-container {
     display: flex;
   }
   .loading {
     font-size: 30px;
   }
-} */
+  .chat-container {
+    width: 95%;
+    height: 97vh;
+    max-width: 1000px;
+    background-color: aliceblue;
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+  }
+}
