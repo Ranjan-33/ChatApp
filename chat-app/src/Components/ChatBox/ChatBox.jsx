@@ -12,6 +12,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../../Config/firebase";
 import { toast } from "react-toastify";
+import upload from "../../Lib/upload";
 
 const ChatBox = () => {
   const { userData, messageId, chatUser, messages, setMessages } =
@@ -27,7 +28,7 @@ const ChatBox = () => {
           messages: arrayUnion({
             sId: userData.id,
             text: input,
-            createdAt: new Date(), // Corrected to new Date()
+            createdAt: new Date(),
           }),
         });
 
@@ -39,7 +40,7 @@ const ChatBox = () => {
 
           if (userChatSnapshot.exists()) {
             const userChatData = userChatSnapshot.data();
-            console.log("User chat data:", userChatData); // Log for debugging
+            console.log("User chat data:", userChatData);
 
             const chatIndex = userChatData.chatsData.findIndex(
               (c) => c.messageId === messageId // Ensure correct property name
@@ -80,10 +81,62 @@ const ChatBox = () => {
         );
       }
     } catch (error) {
-      console.error("Error sending message:", error); // Improved error logging
+      console.error("Error sending message:", error);
       toast.error("Error sending message: " + error.message);
     }
   };
+  // sending image
+  const sendImage = async (e) => {
+    try {
+      const fileurl = await upload(e.target.files[0]);
+      if (fileurl && messageId) {
+        await updateDoc(doc(db, "messages", messageId), {
+          messages: arrayUnion({
+            sId: userData.id,
+            image: fileurl,
+            createdAt: new Date(),
+          }),
+        });
+
+        const userIDs = [chatUser.rId, userData.id];
+        for (const id of userIDs) {
+          const userChatsRef = doc(db, "chats", id);
+          const userChatSnapshot = await getDoc(userChatsRef);
+
+          if (userChatSnapshot.exists()) {
+            const userChatData = userChatSnapshot.data();
+            console.log("User chat data:", userChatData);
+
+            const chatIndex = userChatData.chatsData.findIndex(
+              (c) => c.messageId === messageId // Ensure correct property name
+            );
+
+            if (chatIndex !== -1) {
+              // Ensure chatIndex is valid
+              userChatData.chatsData[chatIndex].lastMessage = "image";
+              userChatData.chatsData[chatIndex].updatedAt = Date.now();
+
+              if (userChatData.chatsData[chatIndex].rId === userData.id) {
+                userChatData.chatsData[chatIndex].messageSeen = false;
+              }
+
+              // Update the chat document
+              await updateDoc(userChatsRef, {
+                chatsData: userChatData.chatsData,
+              });
+            } else {
+              console.error("Chat index not found for messageId:", messageId);
+            }
+          } else {
+            console.error("User chat document does not exist for id:", id);
+          }
+        }
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
   const converTimeStamp = (Timestamp) => {
     let date = Timestamp.toDate();
     const hour = date.getHours();
@@ -150,18 +203,25 @@ const ChatBox = () => {
       <div className="chat-user">
         <img src={chatUser.userData.avatar} alt="" />
         <p>
-          {chatUser.userData.name}{" "}
-          <img className="dot" src={assets.green_dot} alt="" />
+          {chatUser.userData.name}
+          {Date.now() - chatUser.userData.lastSeen <= 70000 ? (
+            <img className="dot" src={assets.green_dot} alt="" />
+          ) : null}
         </p>
         <img src={assets.help_icon} className="help" alt="" />
       </div>
+
       <div className="chat-msg">
         {messages.map((msg, index) => (
           <div
             key={index}
             className={msg.sId === userData.id ? "s-msg" : "r-msg"}
           >
-            <p className="msg">{msg.text}</p>
+            {msg["image"] ? (
+              <img className="msg-img" src={msg.image} alt="" />
+            ) : (
+              <p className="msg">{msg.text}</p>
+            )}
             <div>
               <img
                 src={
@@ -185,7 +245,13 @@ const ChatBox = () => {
           placeholder="Send a message"
         />
 
-        <input type="file" id="image" accept="image/png , image/jpeg" hidden />
+        <input
+          onChange={sendImage}
+          type="file"
+          id="image"
+          accept="image/png , image/jpeg"
+          hidden
+        />
         <label htmlFor="image">
           <img src={assets.gallery_icon} alt="" />
         </label>

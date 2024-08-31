@@ -73,3 +73,9 @@
 .logout:hover {
   background-color: #c62828; /* Darker red background color on hover */
 }
+
+/* @media (max-width: 980px) {
+  .rs {
+    display: none;
+  }
+} */

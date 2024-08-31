@@ -7,6 +7,7 @@ import {
   arrayUnion,
   collection,
   doc,
+  getDoc,
   query,
   serverTimestamp,
   setDoc,
@@ -25,6 +26,8 @@ const LeftSideBar = () => {
     setChatUser,
     setMessagesId,
     messageId,
+    chatVisible,
+    setChatVisible,
   } = useContext(AppContext);
   const [user, setUser] = useState(null);
   const [showSearch, setShowSearch] = useState(false);
@@ -42,7 +45,7 @@ const LeftSideBar = () => {
         if (!querySnap.empty && querySnap.docs[0].data().id !== userData.id) {
           let userExit = false;
 
-          // Corrected: Using a more appropriate loop to check if the user exists in the chat
+          //  check if the user exists in the chating
           for (let user of chatData) {
             if (user.rId === querySnap.docs[0].data().id) {
               userExit = true;
@@ -53,7 +56,7 @@ const LeftSideBar = () => {
           if (!userExit) {
             setUser(querySnap.docs[0].data());
           } else {
-            setUser(null); // Ensure the user doesn't appear if already in the chat list
+            setUser(null); // checking the user must not repeat
           }
         } else {
           setUser(null);
@@ -110,17 +113,33 @@ const LeftSideBar = () => {
     setChatUser(item);
     console.log(item);
   }; */
-  const setChat = (item) => {
-    console.log("Setting messagesId:", item.messageId); // Check if messagesId is available
-    if (!item.messageId) {
-      console.error("Error: messagesId is undefined!");
+  const setChat = async (item) => {
+    try {
+      console.log("Setting messagesId:", item.messageId); // Check if messagesId is available
+      if (!item.messageId) {
+        console.error("Error: messagesId is undefined!");
+      }
+      setMessagesId(item.messageId); // Make sure this line correctly updates state
+      setChatUser(item); // Set the chat user
+
+      const userChatsRef = doc(db, "chats", userData.id);
+      const userChatSnapshot = await getDoc(userChatsRef);
+      const userChatData = userChatSnapshot.data();
+      const chatIndex = userChatData.chatsData.findIndex(
+        (c) => c.messageId === item.messageId
+      );
+      userChatData.chatsData[chatIndex].messageSeen = true;
+      await updateDoc(userChatsRef, {
+        chatsData: userChatData.chatsData,
+      });
+      // setChatVisible(true);
+    } catch (error) {
+      toast.error(error.message);
     }
-    setMessagesId(item.messageId); // Make sure this line correctly updates state
-    setChatUser(item); // Set the chat user
   };
 
   return (
-    <div className="ls">
+    <div className={`ls ${chatVisible ? "hidden" : " "}`}>
       <div className="ls-top">
         <div className="ls-nav">
           <img src={assets.logo} className="logo" alt="" />
@@ -150,7 +169,13 @@ const LeftSideBar = () => {
           </div>
         ) : (
           chatData.map((item, index) => (
-            <div onClick={() => setChat(item)} key={index} className="friends">
+            <div
+              onClick={() => setChat(item)}
+              key={index}
+              className={`friends ${
+                item.messageSeen || item.messageId === messageId ? "" : "border"
+              }`}
+            >
               <img src={item.userData.avatar} alt="" className="hover-zoom" />
               <div>
                 <p>{item.userData.name}</p>
